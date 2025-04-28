@@ -5,8 +5,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
 
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,3 +21,23 @@ jobs:
       run: mvn compile
 
   
+  Security-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Trivy install
+      run: | 
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update -y
+        sudo apt-get install trivy -y
+    - name: Trivy scan
+      run: trivy fs scan --format table -o fs-report.json
+
+    - name: Gitleasks install
+      run: sudo apt install gitleaks -y
+
+    - name: Gitleasks scan
+      run: gitleaks detect source . -r gitleaks-report.json -f json 
