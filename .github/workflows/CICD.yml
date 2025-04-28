@@ -95,7 +95,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
 
-docker image build and push:
+  docker-image-build-push:
     runs-on: git-label
     needs: sonar-build-scan
 
