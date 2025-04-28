@@ -119,8 +119,8 @@ docker image build and push:
       uses: docker/setup-buildx-action@v3
         
     - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
+      uses: docker/build-push-action@v6
+      with:
           push: true
           tags: shravan001/bankapp:latest
         
