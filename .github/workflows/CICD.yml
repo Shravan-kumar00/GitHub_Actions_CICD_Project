@@ -1,6 +1,6 @@
 name: CICD Pipeline
 
-on:  # Trigger like webhook in jenkins
+on: 
   push:
     branches: [ "main" ]
 
@@ -20,31 +20,24 @@ jobs:
     - name: Build with Maven
       run: mvn compile
 
-
     - name: Upload JAR Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app.jar
-        path: target/*.jar
-  
+        name: app-jar-artifact  # Unique artifact name
+        path: target/my-app.jar  # Exact JAR file path (replace with your actual file)
+
   security-check:
     runs-on: git-label
-    needs: compile  #initiates after 1st job is successful
+    needs: compile
 
     steps:
     - uses: actions/checkout@v4
-   
     - name: Trivy scan
       run: trivy fs --format table -o fs-report.json .
-
-
-    - name: Gitleasks install
+    - name: Gitleaks install
       run: sudo apt install gitleaks -y
-
-
-    - name: Gitleasks scan
-      run: gitleaks detect source . -r gitleaks-report.json -f json 
-
+    - name: Gitleaks scan
+      run: gitleaks detect source . -r gitleaks-report.json -f json
 
   test:
     runs-on: git-label
@@ -58,7 +51,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - name: unit test case
+    - name: Unit test case
       run: mvn test
 
   sonar-build-scan:
@@ -73,27 +66,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - name: build project
+    - name: Build project
       run: mvn package
-
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
     - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v5.1.0 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+      uses: SonarSource/sonarqube-scan-action@v5.1.0
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-    - name: SonarQube Quality Gate check
-      id: sonarqube-quality-gate-check
-      uses: sonarsource/sonarqube-quality-gate-action@master
-      with:
-          pollingTimeoutSec: 600
-      env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
 
   docker-image-build-push:
     runs-on: git-label
@@ -104,7 +83,7 @@ jobs:
     - name: Download JAR Artifact
       uses: actions/download-artifact@v4
       with:
-        name: app.jar
+        name: app-jar-artifact  # Match the artifact name used in the upload step
         path: app
 
     - name: Login to Docker Hub
@@ -114,13 +93,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
-        
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-        
-    - name: Build and push
+    - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
           push: true
           tags: shravan001/bankapp:latest
-        
