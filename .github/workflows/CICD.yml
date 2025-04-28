@@ -23,8 +23,8 @@ jobs:
     - name: Upload JAR Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-jar-artifact  # Unique artifact name
-        path: target/my-app.jar  # Exact JAR file path (replace with your actual file)
+        name: app-jar # Unique artifact name
+        path: target/*.jar  # Exact JAR file path (replace with your actual file)
 
   security-check:
     runs-on: git-label
