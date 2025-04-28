@@ -7,7 +7,7 @@ on:  # Trigger like webhook in jenkins
 jobs:
 
   compile:
-    runs-on: ubuntu-latest
+    runs-on: git-label
 
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
 
   
   Security-check:
-    runs-on: ubuntu-latest
+    runs-on: git-label
     needs: compile  #initiates after 1st job is successful
 
     steps:
