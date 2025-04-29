@@ -20,12 +20,6 @@ jobs:
     - name: Build with Maven
       run: mvn compile
 
-    - name: Upload JAR Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: my-app-jar # Unique artifact name
-        path: target/*.jar  # Exact JAR file path (replace with your actual file)
-
   security-check:
     runs-on: git-label
     needs: compile
@@ -68,6 +62,18 @@ jobs:
         cache: maven
     - name: Build project
       run: mvn package
+
+    - name: Upload JAR Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-jar # Unique artifact name
+        path: target/*.jar  # Exact JAR file path (replace with your actual file)
+
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+        
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v5.1.0
       env:
@@ -82,8 +88,8 @@ jobs:
     - name: Download JAR artifact
       uses: actions/download-artifact@v4
       with:
-        name: my-app-jar
-        path: app  # this will download JAR to ./app folder
+        name: app-jar
+        path: app # this will download JAR to ./app folder
         
     - name: Login to Docker Hub
       uses: docker/login-action@v3
