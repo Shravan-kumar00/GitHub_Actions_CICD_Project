@@ -23,7 +23,7 @@ jobs:
     - name: Upload JAR Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-jar # Unique artifact name
+        name: my-app-jar # Unique artifact name
         path: target/*.jar  # Exact JAR file path (replace with your actual file)
 
   security-check:
@@ -32,6 +32,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Trivy install
+      run: | 
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update -y
+        sudo apt-get install -y trivy
+        
     - name: Trivy scan
       run: trivy fs --format table -o fs-report.json .
     - name: Gitleaks install
@@ -82,7 +90,7 @@ jobs:
     - name: Download JAR artifact
       uses: actions/download-artifact@v4
       with:
-        name: app-jar
+        name: my-app-jar
         path: app  # this will download JAR to ./app folder
         
     - name: Login to Docker Hub
